@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: public/functions/api/weather.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: public/functions/api/weather.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * OpenWeatherMap API Key
+ * @constant {string}
+ */
+const API_KEY = "11594a4acd0d62a7067f9448185ee039";
+
+/**
+ * City for weather lookup
+ * @constant {string}
+ */
+const CITY = "College Station";
+
+/**
+ * State for weather lookup (optional, US only)
+ * @constant {string}
+ */
+const STATE = "TX";
+
+/**
+ * Country code (ISO 3166) for weather lookup
+ * @constant {string}
+ */
+const COUNTRY = "US";
+
+/**
+ * Units for temperature ('metric' for Celsius, 'imperial' for Fahrenheit)
+ * @constant {string}
+ */
+const UNITS = "imperial";
+
+/**
+ * Full URL for OpenWeatherMap API request
+ * @constant {string}
+ */
+const API_URL = `https://api.openweathermap.org/data/2.5/weather?q=${CITY},${STATE},${COUNTRY}&amp;appid=${API_KEY}&amp;units=${UNITS}`;
+
+/**
+ * Fetches current weather data for the specified location using OpenWeatherMap API
+ * and updates the HTML elements with temperature, description, and icon.
+ *
+ * @async
+ * @function fetchWeatherData
+ */
+function fetchWeatherData() {
+    fetch(API_URL)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            const temp = data.main.temp.toFixed(0);
+            const description = data.weather[0].description;
+            const city = data.name;
+
+            const iconCode = data.weather[0].icon;
+            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+            
+            const unitSymbol = UNITS === "metric" ? "°C" : "°F";
+
+            document.getElementById("weather-temp").textContent = `${temp}${unitSymbol}`;
+            document.getElementById("weather-description").textContent = description;
+
+            document.getElementById("weather-icon").src = iconUrl;
+            document.getElementById("weather-icon").alt = description;
+
+            console.log("City:", city);
+            console.log("Temperature:", `${temp}${unitSymbol}`);
+            console.log("Description:", description);
+            console.log("Icon URL:", iconUrl);
+            console.log("Icon ALT text:", description);
+        })
+        .catch(error => {
+            console.error("Could not fetch weather data:", error);
+            document.getElementById("weather-city").textContent = "Failed to load";
+            document.getElementById("weather-temp").textContent = "N/A";
+            document.getElementById("weather-description").textContent = "Error";
+        });
+}
+
+/**
+ * Initialize weather data fetch when the DOM content is loaded.
+ */
+document.addEventListener("DOMContentLoaded", fetchWeatherData);</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-routes_managerReports.html">routes/managerReports</a></li><li><a href="module-routes_managerReports_SalesReport.html">routes/managerReports/SalesReport</a></li><li><a href="module-routes_managerReports_XandZReport.html">routes/managerReports/XandZReport</a></li><li><a href="module-routes_managerReports_productUsageReport.html">routes/managerReports/productUsageReport</a></li><li><a href="module-routes_managerReports_restockReport.html">routes/managerReports/restockReport</a></li></ul><h3>Global</h3><ul><li><a href="global.html#API_KEY">API_KEY</a></li><li><a href="global.html#API_URL">API_URL</a></li><li><a href="global.html#CITY">CITY</a></li><li><a href="global.html#COUNTRY">COUNTRY</a></li><li><a href="global.html#GoToManagerReports">GoToManagerReports</a></li><li><a href="global.html#GoToProductUsageReport">GoToProductUsageReport</a></li><li><a href="global.html#GoToRestock">GoToRestock</a></li><li><a href="global.html#GoToSalesReport">GoToSalesReport</a></li><li><a href="global.html#GoToXReport">GoToXReport</a></li><li><a href="global.html#GoToZReport">GoToZReport</a></li><li><a href="global.html#RestockItems">RestockItems</a></li><li><a href="global.html#STATE">STATE</a></li><li><a href="global.html#SetZReportTime">SetZReportTime</a></li><li><a href="global.html#UNITS">UNITS</a></li><li><a href="global.html#fetchWeatherData">fetchWeatherData</a></li><li><a href="global.html#renderProductUsageChart">renderProductUsageChart</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed Dec 10 2025 17:03:07 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
