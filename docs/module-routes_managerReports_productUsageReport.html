@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: routes/managerReports</title>
+    <title>JSDoc: Module: routes/managerReports/productUsageReport</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: routes/managerReports</h1>
+    <h1 class="page-title">Module: routes/managerReports/productUsageReport</h1>
 
     
 
@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Express router handling Manager Reports routes.This module serves as the main entry point for all manager reportingfunctionality, including sales reports, X/Z reports, restock reports,and product usage reports.</div>
+            <div class="description">Express router for generating the Product Usage Report.This route fetches ingredient-level usage based on the number of meals soldwithin a given date range. It aggregates quantities based on linked reciperequirements.</div>
         
 
         
@@ -87,7 +87,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_managerReports.js.html">routes/managerReportRoute/managerReports.js</a>, <a href="routes_managerReportRoute_managerReports.js.html#line1">line 1</a>
+        <a href="routes_managerReportRoute_productUsageReport.js.html">routes/managerReportRoute/productUsageReport.js</a>, <a href="routes_managerReportRoute_productUsageReport.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -134,258 +134,6 @@
     
 
     
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="./productUsageReport"><span class="type-signature">(static) </span>/productUsageReport<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Mounts the Product Usage Report router.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_managerReports.js.html">routes/managerReportRoute/managerReports.js</a>, <a href="routes_managerReportRoute_managerReports.js.html#line55">line 55</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="./restock"><span class="type-signature">(static) </span>/restock<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Mounts the Restock Report router.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_managerReports.js.html">routes/managerReportRoute/managerReports.js</a>, <a href="routes_managerReportRoute_managerReports.js.html#line48">line 48</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="./salesReport"><span class="type-signature">(static) </span>/salesReport<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Mounts the Sales Report router.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_managerReports.js.html">routes/managerReportRoute/managerReports.js</a>, <a href="routes_managerReportRoute_managerReports.js.html#line34">line 34</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="./xAndzReport"><span class="type-signature">(static) </span>/xAndzReport<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Mounts the X and Z Reports router.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_managerReports.js.html">routes/managerReportRoute/managerReports.js</a>, <a href="routes_managerReportRoute_managerReports.js.html#line41">line 41</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -396,7 +144,7 @@
     
 
     
-    <h4 class="name" id=".GET/"><span class="type-signature">(static) </span>GET /<span class="signature">(req, res)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".GET/"><span class="type-signature">(static) </span>GET /<span class="signature">(req, res)</span><span class="type-signature"> &rarr; {void}</span></h4>
     
 
     
@@ -404,7 +152,7 @@
 
 
 <div class="description">
-    GET /manager/managerReports  Renders the Manager Reports main menu page.
+    GET /manager/managerReports/productUsageReportRenders the Product Usage Report page.Accepts optional query parameters for date filtering.
 </div>
 
 
@@ -456,7 +204,7 @@
 
             
 
-            <td class="description last">Express request object</td>
+            <td class="description last">The Express request object.</td>
         </tr>
 
     
@@ -479,7 +227,7 @@
 
             
 
-            <td class="description last">Express response object</td>
+            <td class="description last">The Express response object.</td>
         </tr>
 
     
@@ -520,7 +268,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_managerReports.js.html">routes/managerReportRoute/managerReports.js</a>, <a href="routes_managerReportRoute_managerReports.js.html#line20">line 20</a>
+        <a href="routes_managerReportRoute_productUsageReport.js.html">routes/managerReportRoute/productUsageReport.js</a>, <a href="routes_managerReportRoute_productUsageReport.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -545,8 +293,217 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Renders EJS template with report data.
+</div>
 
 
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".generateProductUsageReport"><span class="type-signature">(async, static) </span>generateProductUsageReport<span class="signature">(from_date, to_date)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;{itemName: string, totalUsed: number}>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Generates a product usage report based on menu-item recipe requirements.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>from_date</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Beginning of the date range (timestamp).</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>to_date</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">End of the date range (timestamp).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="routes_managerReportRoute_productUsageReport.js.html">routes/managerReportRoute/productUsageReport.js</a>, <a href="routes_managerReportRoute_productUsageReport.js.html#line57">line 57</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Returns an array of product usage objects.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;Array.&lt;{itemName: string, totalUsed: number}>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>[  { itemName: "Chicken Breast", totalUsed: 124 },  { itemName: "Fried Rice", totalUsed: 89 }]</code></pre>
 
 
 
