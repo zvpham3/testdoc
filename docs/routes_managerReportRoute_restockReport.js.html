@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/managerReportRoute/restockReport.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/managerReportRoute/restockReport.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Express router handling inventory restocking reports and restock actions.
+ *
+ * Provides:
+ *  - A restock report overview page
+ *  - An API to perform automatic restocking updates
+ *
+ * @module routes/managerReports/restockReport
+ */
+
+const express = require('express');
+const router = express.Router();
+const db = require('../../db');
+
+/**
+ * GET /manager/managerReports/restock
+ *
+ * Renders the Restock Report page.
+ * Fetches inventory items that require restocking.
+ *
+ * @name GET /
+ * @function
+ * @memberof module:routes/managerReports/restockReport
+ *
+ * @param {express.Request} req
+ * @param {express.Response} res
+ *
+ * @returns {void} Renders EJS template with restock report data.
+ */
+
+router.get('/', async (req, res) => {
+     try {
+
+        // Run both database queries in parallel
+        const [reportItems] = await Promise.all([ generateRestockReport()]);
+
+        // Render the page, passing all data to the template
+        res.render('manager_reports/restock-report', {
+            reportItems: reportItems,
+        });
+    } catch (error) {
+        // Handle a critical error (e.g., database connection failed)
+        console.error("Critical error in main route:", error);
+        res.status(500).send("An error occurred while fetching the sales report.");
+    }
+});
+
+/**
+ * GET /manager/managerReports/restock/api/restock-items
+ *
+ * Performs automatic restocking:
+ *  - Finds all items below their minimum quantity
+ *  - Updates each item to its `max` quantity
+ *  - Redirects back to the restock report page
+ *
+ * @name GET /api/restock-items
+ * @function
+ * @memberof module:routes/managerReports/restockReport
+ *
+ * @param {express.Request} req
+ * @param {express.Response} res
+ *
+ * @returns {Promise&lt;void>} Redirects to `/manager/managerReports/restock`
+ */
+
+router.get('/api/restock-items', async (req, res) => {
+    const sql = "UPDATE inventory SET quantity = $1 WHERE item_id = $2";
+    let success = true;
+
+    try {
+        const allRestocks = await FindRestock(); 
+
+        for (const r of allRestocks) {
+            const inventoryData = await findByIdInventory(r.item_id);
+
+            if (inventoryData.length > 0) {
+                const inv = inventoryData[0];
+                const currentQuantity = parseFloat(inv.quantity);
+                const maxQuantity = parseFloat(r.max);
+                const newQuantity = currentQuantity + (maxQuantity - currentQuantity); 
+                
+                try {
+                    await db.query(sql, [newQuantity, r.item_id]);
+                } catch (updateErr) {
+                    console.error(`Failed to update item_id ${r.item_id}:`, updateErr.message);
+                    success = false; // Mark as failed but continue loop (similar to Java's catch logic)
+                }
+            }
+        }
+
+        if (success) {
+            console.log("SUCCESS: Restock order placed successfully.");
+        } else {
+            console.log("WARNING: Restock order finished, but some updates failed. Check logs.");
+        }
+        return res.redirect('/manager/managerReports/restock');
+
+    } catch (e) {
+        console.error("CRITICAL ERROR during restock process:", e.message);
+        return { status: 'error', message: 'Critical failure during restock.' };
+    }
+});
+
+
+/**
+ * Generates the restock report.
+ *
+ * Determines which inventory items are below their minimum level
+ * and whether they need restocking.
+ *
+ * @async
+ * @function generateRestockReport
+ * @memberof module:routes/managerReports/restockReport
+ *
+ * @returns {Promise&lt;Array&lt;{itemName: string, onHand: number, minimum: number, needsRestock: boolean}>>}
+ * A list of restock report entries.
+ *
+ * @example
+ * [
+ *   { itemName: "Soy Sauce", onHand: 2, minimum: 5, needsRestock: true },
+ *   { itemName: "Noodles", onHand: 20, minimum: 10, needsRestock: false }
+ * ]
+ */
+
+async function generateRestockReport() {
+    const entries = [];
+    
+    try {
+        const allRestocks = await FindRestock(); 
+
+        for (const r of allRestocks) {
+            const inventoryData = await findByIdInventory(r.item_id);
+
+            if (inventoryData.length > 0) {
+                const inv = inventoryData[0];
+                
+                const itemName = inv.item_name;
+                const onHand = parseFloat(inv.quantity);
+                const minimum = parseFloat(r.min); 
+                const needsRestock = onHand &lt;= minimum;
+
+                entries.push({ itemName, onHand, minimum, needsRestock });
+            }
+        }
+        
+        return entries;
+
+    } catch (err) {
+        console.error("Error generating restock report:", err.message);
+        return [];
+    }
+}
+
+
+/**
+ * Finds a specific inventory item by its ID.
+ *
+ * @async
+ * @function findByIdInventory
+ * @memberof module:routes/managerReports/restockReport
+ *
+ * @param {number} item_id - The ID of the inventory item.
+ *
+ * @returns {Promise&lt;Array&lt;{item_id: number, item_name: string, quantity: number, unit: string}>>}
+ */
+
+async function findByIdInventory(item_id) {
+    const query = `Select * from inventory WHERE  item_id = $1`;
+
+    try {
+        const res = await db.query(query, [item_id]);
+        return res.rows.map(row => ({
+            item_id: row.item_id,
+            item_name: row.item_name,
+            quantity: row.quantity,
+            unit: row.unit
+        }));
+    } catch (err) {
+        console.error("Error generating restock report- findByInventoryID:", err.message);
+        return [];
+    }
+}
+
+/**
+ * Finds all items that need restocking.
+ *
+ * Items qualify if `inventory.quantity &lt;= restock.min`.
+ *
+ * @async
+ * @function FindRestock
+ * @memberof module:routes/managerReports/restockReport
+ *
+ * @returns {Promise&lt;Array&lt;{restock_id: number, item_id: number, max: number, min: number, shelf_life: string, lastRestock: string}>>}
+ */
+
+ async function FindRestock() {
+    const query = `Select * from inventory i JOIN restock r on i.item_id = r.item_id WHERE i.quantity &lt;= r.min`;
+    
+    try {
+        const res = await db.query(query);
+        return res.rows.map(row => ({
+            restock_id: row.restock_id,
+            item_id: row.item_id,
+            max: row.max,
+            min: row.min,
+            shelf_life: row.shelf_life,
+            lastRestock: row.last_restock
+        }));
+    } catch (err) {
+        console.error("Error generating restock report - FindRestock:", err.message);
+        return [];
+    }
+}
+
+module.exports = router;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-routes_managerReports.html">routes/managerReports</a></li><li><a href="module-routes_managerReports_SalesReport.html">routes/managerReports/SalesReport</a></li><li><a href="module-routes_managerReports_XandZReport.html">routes/managerReports/XandZReport</a></li><li><a href="module-routes_managerReports_productUsageReport.html">routes/managerReports/productUsageReport</a></li><li><a href="module-routes_managerReports_restockReport.html">routes/managerReports/restockReport</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GoToManagerReports">GoToManagerReports</a></li><li><a href="global.html#GoToProductUsageReport">GoToProductUsageReport</a></li><li><a href="global.html#GoToRestock">GoToRestock</a></li><li><a href="global.html#GoToSalesReport">GoToSalesReport</a></li><li><a href="global.html#GoToXReport">GoToXReport</a></li><li><a href="global.html#GoToZReport">GoToZReport</a></li><li><a href="global.html#RestockItems">RestockItems</a></li><li><a href="global.html#SetZReportTime">SetZReportTime</a></li><li><a href="global.html#renderProductUsageChart">renderProductUsageChart</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed Dec 10 2025 16:52:42 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

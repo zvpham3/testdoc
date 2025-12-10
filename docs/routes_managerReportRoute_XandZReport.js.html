@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/managerReportRoute/XandZReport.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/managerReportRoute/XandZReport.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Express router handling Manager Reports routes.
+ * 
+ * This module serves as the main entry point for all X and Z Reporting
+ * functionality
+ *
+ * @module routes/managerReports/XandZReport
+ */
+const express = require('express');
+const router = express.Router();
+const db = require('../../db');
+
+/**
+ * GET /xReport
+ *
+ * Renders the X-Report (hourly sales report) using the last Z-Report timestamp.
+ *
+ * @name GET /xReport
+ * @function
+ * @memberof module:routes/managerReports/XandZReport
+ * @category Routes
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+
+router.get('/xReport', async (req, res) => {
+     try {
+        const latestZReport = req.cookies.latestZReport || '';
+
+        // Run both database queries in parallel
+        const [reportItems] = await Promise.all([
+            generateXReport(latestZReport)
+        ]);
+
+        // Render the page, passing all data to the template
+        res.render('manager_reports/x-report', {
+            reportItems: reportItems,
+            total: reportItems?.[0]?.total ?? -1
+        });
+    } catch (error) {
+        // Handle a critical error (e.g., database connection failed)
+        console.error("Critical error in main route:", error);
+        res.status(500).send("An error occurred while fetching the sales report.");
+    }
+});
+
+/**
+ * GET /zReport
+ *
+ * Renders the Z-Report (full-day closing report), reusing the same generator as X-Report.
+ *
+ * @name GET /zReport
+ * @function
+ * @memberof module:routes/managerReports/XandZReport
+ * @category Routes
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+
+router.get('/zReport', async (req, res) => {
+     try {
+        const latestZReport = req.cookies.latestZReport || '';
+
+        // Run both database queries in parallel
+        const [reportItems] = await Promise.all([
+            generateXReport(latestZReport)
+        ]);
+
+        // Render the page, passing all data to the template
+        res.render('manager_reports/z-report', {
+            reportItems: reportItems,
+            total: reportItems?.[0]?.total ?? -1
+        });
+    } catch (error) {
+        // Handle a critical error (e.g., database connection failed)
+        console.error("Critical error in main route:", error);
+        res.status(500).send("An error occurred while fetching the sales report.");
+    }
+});
+
+/**
+ * GET /api/set-z-report-time
+ *
+ * Sets a cookie storing the timestamp of the last Z-Report and redirects back to the Z-Report page.
+ *
+ * @name GET /api/set-z-report-time
+ * @function
+ * @memberof module:routes/managerReports/XandZReport
+ * @category API
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+
+router.get('/api/set-z-report-time', async (req, res) => {
+    try {
+        // Assume SetZReportTime handles setting the cookie and saving the timestamp
+       const timestamp = new Date().toISOString(); // The time of the completed Z-Report.
+    
+        // Set the cookie
+        res.cookie('latestZReport', timestamp, {
+            maxAge: 3600000 * 24 * 365, // Keep the cookie for a year (or longer)
+            httpOnly: true,             // Makes it inaccessible to client-side JS (security best practice)
+            secure: process.env.NODE_ENV === 'production', // Use 'secure' in production (HTTPS)
+            sameSite: 'strict'          // Security measure
+        });
+
+       return res.redirect('/manager/managerReports/xAndzReport/zReport');
+        
+    } catch (error) {
+        console.error("Error setting Z-Report time:", error);
+        res.status(500).send({ error: "Failed to set Z-Report time." });
+    }
+});
+
+/**
+ * Generates an X-Report (hourly sales) from the last Z-Report timestamp or for today.
+ *
+ * @function generateXReport
+ * @async
+ * 
+ * @category Reports
+ * @param {string} latestZReport - ISO timestamp of last Z-Report; fallback is today's date.
+ * @returns {Promise&lt;Array&lt;{itemName: string, qty: number, total: number}>>}
+ *          Hourly sales rows plus a TOTAL row.
+ */
+
+async function generateXReport(latestZReport) {
+    // 1. Determine the starting timestamp/date
+    let startDateParam;
+    
+    // Check if latestZReport is provided and not empty
+    if (latestZReport &amp;&amp; latestZReport.trim() !== "") {
+        // Use the timestamp from the last Z-Report
+        startDateParam = latestZReport.trim();
+    } else {
+        // Fallback: Use the current date string (YYYY-MM-DD)
+        // For Postgres/SQL comparison: DATE(time_stamp) = 'YYYY-MM-DD'
+        startDateParam = new Date().toISOString().split('T')[0];
+    }
+
+    // 2. Define the parameterized SQL query
+    const query = `
+        SELECT
+            hour_range,
+            number_of_orders,
+            total_sales
+        FROM (
+            SELECT
+                TO_CHAR(time_stamp, 'HH24') || ':00 - ' || TO_CHAR(time_stamp, 'HH24') || ':59' AS hour_range,
+                COUNT(order_id) AS number_of_orders,
+                SUM(total_cost) AS total_sales
+            FROM orders
+            -- Use $1 for the date comparison, which now holds either the latestZReport timestamp
+            -- or today's date string. We use DATE() function to compare the date part.
+            WHERE time_stamp >= $1 
+            AND DATE(time_stamp) = DATE($1)
+            GROUP BY TO_CHAR(time_stamp, 'HH24')
+
+            UNION ALL
+
+            SELECT
+                'TOTAL' AS hour_range,
+                COUNT(order_id) AS number_of_orders,
+                SUM(total_cost) AS total_sales
+            FROM orders
+            WHERE time_stamp >= $1 
+            AND DATE(time_stamp) = DATE($1)
+        ) t
+        ORDER BY
+            CASE WHEN hour_range = 'TOTAL' THEN 2 ELSE 1 END,
+            hour_range;
+    `;
+    
+    // 3. Execute the query and process results
+    try {
+        // We pass startDateParam as the value for $1
+        const res = await db.query(query, [startDateParam]);
+        
+        // Map the database rows to the desired XReportItem format
+        return res.rows.map(row => ({
+            itemName: row.hour_range, // Maps 'hour_range' to 'itemName'
+            qty: parseInt(row.number_of_orders, 10), // Maps 'number_of_orders' to 'qty'
+            total: parseFloat(row.total_sales) // Maps 'total_sales' to 'total'
+        }));
+    } catch (err) {
+        // Log the error and return an empty array on failure
+        console.error("Error generating X-Report:", err.message);
+        return [];
+    }
+}
+
+module.exports = router;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-routes_managerReports.html">routes/managerReports</a></li><li><a href="module-routes_managerReports_SalesReport.html">routes/managerReports/SalesReport</a></li><li><a href="module-routes_managerReports_XandZReport.html">routes/managerReports/XandZReport</a></li><li><a href="module-routes_managerReports_productUsageReport.html">routes/managerReports/productUsageReport</a></li><li><a href="module-routes_managerReports_restockReport.html">routes/managerReports/restockReport</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GoToManagerReports">GoToManagerReports</a></li><li><a href="global.html#GoToProductUsageReport">GoToProductUsageReport</a></li><li><a href="global.html#GoToRestock">GoToRestock</a></li><li><a href="global.html#GoToSalesReport">GoToSalesReport</a></li><li><a href="global.html#GoToXReport">GoToXReport</a></li><li><a href="global.html#GoToZReport">GoToZReport</a></li><li><a href="global.html#RestockItems">RestockItems</a></li><li><a href="global.html#SetZReportTime">SetZReportTime</a></li><li><a href="global.html#renderProductUsageChart">renderProductUsageChart</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed Dec 10 2025 16:52:42 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
