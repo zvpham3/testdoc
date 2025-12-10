@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: routes/managerReports/productUsageReport</title>
+    <title>JSDoc: Module: routes/managerReports/SalesReport</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: routes/managerReports/productUsageReport</h1>
+    <h1 class="page-title">Module: routes/managerReports/SalesReport</h1>
 
     
 
@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Express router for generating the Product Usage Report.This route fetches ingredient-level usage based on the number of meals soldwithin a given date range. It aggregates quantities based on linked reciperequirements.</div>
+            <div class="description">Express router handling Manager Reports routes.This module serves as the main entry point for all Sales Reporting functionality</div>
         
 
         
@@ -87,7 +87,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_productUsageReport.js.html">routes/managerReportRoute/productUsageReport.js</a>, <a href="routes_managerReportRoute_productUsageReport.js.html#line1">line 1</a>
+        <a href="routes_managerReportRoute_salesReport.js.html">routes/managerReportRoute/salesReport.js</a>, <a href="routes_managerReportRoute_salesReport.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -144,7 +144,7 @@
     
 
     
-    <h4 class="name" id=".GET/"><span class="type-signature">(static) </span>GET /<span class="signature">(req, res)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    <h4 class="name" id=".GET/"><span class="type-signature">(static) </span>GET /<span class="signature">(req, res)</span><span class="type-signature"></span></h4>
     
 
     
@@ -152,7 +152,7 @@
 
 
 <div class="description">
-    GET /manager/managerReports/productUsageReportRenders the Product Usage Report page.Accepts optional query parameters for date filtering.
+    GET /manager/managerReports/salesReportRenders the sales report page with item sales and total revenue.
 </div>
 
 
@@ -204,7 +204,7 @@
 
             
 
-            <td class="description last">The Express request object.</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -227,7 +227,7 @@
 
             
 
-            <td class="description last">The Express response object.</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -268,7 +268,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_productUsageReport.js.html">routes/managerReportRoute/productUsageReport.js</a>, <a href="routes_managerReportRoute_productUsageReport.js.html#line16">line 16</a>
+        <a href="routes_managerReportRoute_salesReport.js.html">routes/managerReportRoute/salesReport.js</a>, <a href="routes_managerReportRoute_salesReport.js.html#line87">line 87</a>
     </li></ul></dd>
     
 
@@ -293,28 +293,6 @@
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Renders EJS template with report data.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">void</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
@@ -326,7 +304,7 @@
     
 
     
-    <h4 class="name" id=".generateProductUsageReport"><span class="type-signature">(async, static) </span>generateProductUsageReport<span class="signature">(from_date, to_date)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;{itemName: string, totalUsed: number}>>}</span></h4>
+    <h4 class="name" id=".generateSalesReport"><span class="type-signature">(async, static) </span>generateSalesReport<span class="signature">(from_date, to_date)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;{menu_item: string, quantitySold: number}>>}</span></h4>
     
 
     
@@ -334,7 +312,7 @@
 
 
 <div class="description">
-    Generates a product usage report based on menu-item recipe requirements.
+    Generate a sales report summarizing how many of each menu item were sold.
 </div>
 
 
@@ -386,7 +364,7 @@
 
             
 
-            <td class="description last">Beginning of the date range (timestamp).</td>
+            <td class="description last">Start date (YYYY-MM-DD)</td>
         </tr>
 
     
@@ -409,7 +387,7 @@
 
             
 
-            <td class="description last">End of the date range (timestamp).</td>
+            <td class="description last">End date (YYYY-MM-DD)</td>
         </tr>
 
     
@@ -450,7 +428,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_productUsageReport.js.html">routes/managerReportRoute/productUsageReport.js</a>, <a href="routes_managerReportRoute_productUsageReport.js.html#line57">line 57</a>
+        <a href="routes_managerReportRoute_salesReport.js.html">routes/managerReportRoute/salesReport.js</a>, <a href="routes_managerReportRoute_salesReport.js.html#line14">line 14</a>
     </li></ul></dd>
     
 
@@ -479,7 +457,7 @@
 
         
 <div class="param-desc">
-    Returns an array of product usage objects.
+    A list of menu items and the quantity sold.
 </div>
 
 
@@ -490,7 +468,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Array.&lt;{itemName: string, totalUsed: number}>></span>
+<span class="param-type">Promise.&lt;Array.&lt;{menu_item: string, quantitySold: number}>></span>
 
 
     </dd>
@@ -501,9 +479,186 @@
 
 
 
-    <h5>Example</h5>
+
+        
+            
+
     
-    <pre class="prettyprint"><code>[  { itemName: "Chicken Breast", totalUsed: 124 },  { itemName: "Fried Rice", totalUsed: 89 }]</code></pre>
+
+    
+    <h4 class="name" id=".generateTotalCost"><span class="type-signature">(async, static) </span>generateTotalCost<span class="signature">(from_date, to_date)</span><span class="type-signature"> &rarr; {Promise.&lt;number>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Calculate the total revenue (total cost) from all orders in a date range.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>from_date</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Start date (YYYY-MM-DD)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>to_date</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">End date (YYYY-MM-DD)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="routes_managerReportRoute_salesReport.js.html">routes/managerReportRoute/salesReport.js</a>, <a href="routes_managerReportRoute_salesReport.js.html#line53">line 53</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Total revenue for the selected date range.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;number></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
 
 
 
