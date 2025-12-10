@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/managerReportRoute/salesReport.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/managerReportRoute/salesReport.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Express router handling Manager Reports routes.
+ * 
+ * This module serves as the main entry point for all Sales Reporting 
+ * functionality, including generating itemized sales reports and 
+ * calculating total revenue for a given date range.
+ *
+ * @module routes/managerReports/SalesReport
+ */
+
+const express = require('express');
+const router = express.Router();
+const db = require('../../db');
+
+/**
+ * Generate a sales report summarizing how many of each menu item were sold.
+ *
+ * @function generateSalesReport
+ * @async
+ * @memberof module:routes/managerReports/SalesReport
+ * @category Reports
+ * @param {string} from_date - Start date (YYYY-MM-DD)
+ * @param {string} to_date - End date (YYYY-MM-DD)
+ * @returns {Promise&lt;Array&lt;{menu_item: string, quantitySold: number}>>}
+ *          A list of menu items and the quantity sold.
+ */
+async function generateSalesReport(from_date, to_date) {
+    const query = `
+        SELECT 
+            mi.menuitem_name, 
+            COUNT(*) AS quantity 
+        FROM orders o 
+        JOIN orderentry oe ON o.order_id = oe.order_id 
+        JOIN menuitem mi ON oe.menuitem_id = mi.menuitem_id 
+        WHERE DATE(time_stamp) >= $1
+        AND DATE(time_stamp) &lt;= $2
+        GROUP BY mi.menuitem_name, mi.category 
+        ORDER BY mi.menuitem_name;
+    `;
+    
+    try {
+        const res = await db.query(query, [from_date, to_date]);
+        return res.rows.map(row => ({
+            menu_item: row.menuitem_name,
+            quantitySold: parseInt(row.quantity, 10)
+        }));
+    } catch (err) {
+        console.error("Error generating sales report:", err.message);
+        return [];
+    }
+}
+
+/**
+ * Calculate the total revenue (total cost) from all orders in a date range.
+ *
+ * @function generateTotalCost
+ * @async
+ * @memberof module:routes/managerReports/SalesReport
+ * @category Reports
+ * @param {string} from_date - Start date (YYYY-MM-DD)
+ * @param {string} to_date - End date (YYYY-MM-DD)
+ * @returns {Promise&lt;number>} Total revenue for the selected date range.
+ */
+async function generateTotalCost(from_date, to_date) {
+    const sql = `
+        SELECT SUM(total_cost) AS total 
+        FROM orders 
+        WHERE DATE(time_stamp) >= $1 
+        AND DATE(time_stamp) &lt;= $2
+    `;
+    
+    try {
+        const res = await db.query(sql, [from_date, to_date]);
+        if (res.rows.length > 0) {
+            return parseFloat(res.rows[0].total) || 0.0;
+        }
+        return 0.0;
+    } catch (err) {
+        console.error("Error generating total cost:", err.message);
+        return 0.0;
+    }
+}
+
+/**
+ * GET /manager/managerReports/salesReport
+ *
+ * Renders the sales report page with item sales and total revenue.
+ *
+ * @name GET /
+ * @function
+ * @memberof module:routes/managerReports/SalesReport
+ * @category Routes
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+router.get('/', async (req, res) => {
+     try {
+        const { from_date = '2025-10-01', to_date = '2025-10-30' } = req.query;
+
+        const [reportItems, totalCost] = await Promise.all([
+            generateSalesReport(from_date, to_date),
+            generateTotalCost(from_date, to_date)
+        ]);
+
+        res.render('manager_reports/sales-report', {
+            reportItems: reportItems,
+            totalCost: totalCost,
+            from_date: from_date, 
+            to_date: to_date
+        });
+    } catch (error) {
+        console.error("Critical error in main route:", error);
+        res.status(500).send("An error occurred while fetching the sales report.");
+    }
+});
+
+module.exports = router;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-API_Weather.html">API/Weather</a></li><li><a href="module-routes_managerReports.html">routes/managerReports</a></li><li><a href="module-routes_managerReports_SalesReport.html">routes/managerReports/SalesReport</a></li><li><a href="module-routes_managerReports_XandZReport.html">routes/managerReports/XandZReport</a></li><li><a href="module-routes_managerReports_productUsageReport.html">routes/managerReports/productUsageReport</a></li><li><a href="module-routes_managerReports_restockReport.html">routes/managerReports/restockReport</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GoToManagerReports">GoToManagerReports</a></li><li><a href="global.html#GoToProductUsageReport">GoToProductUsageReport</a></li><li><a href="global.html#GoToRestock">GoToRestock</a></li><li><a href="global.html#GoToSalesReport">GoToSalesReport</a></li><li><a href="global.html#GoToXReport">GoToXReport</a></li><li><a href="global.html#GoToZReport">GoToZReport</a></li><li><a href="global.html#RestockItems">RestockItems</a></li><li><a href="global.html#SetZReportTime">SetZReportTime</a></li><li><a href="global.html#renderProductUsageChart">renderProductUsageChart</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed Dec 10 2025 17:06:27 GMT-0600 (Central Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
