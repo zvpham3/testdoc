@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: routes/managerReports/productUsageReport</title>
+    <title>JSDoc: Module: API/CurrencyExchange</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: routes/managerReports/productUsageReport</h1>
+    <h1 class="page-title">Module: API/CurrencyExchange</h1>
 
     
 
@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Express router for generating the Product Usage Report.This route fetches ingredient-level usage based on the number of meals soldwithin a given date range. It aggregates quantities based on linked reciperequirements.</div>
+            <div class="description">Module for fetching and displaying live currency exchange rates using the ExchangeRate-API.Provides functionality for selecting different target currencies and dynamicallyupdating the displayed conversion rate from the base currency.</div>
         
 
         
@@ -87,7 +87,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_productUsageReport.js.html">routes/managerReportRoute/productUsageReport.js</a>, <a href="routes_managerReportRoute_productUsageReport.js.html#line1">line 1</a>
+        <a href="public_functions_api_currency-exchange.js.html">public/functions/api/currency-exchange.js</a>, <a href="public_functions_api_currency-exchange.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -144,7 +144,7 @@
     
 
     
-    <h4 class="name" id=".GET/"><span class="type-signature">(static) </span>GET /<span class="signature">(req, res)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    <h4 class="name" id=".fetchExchangeRate"><span class="type-signature">(async, static) </span>fetchExchangeRate<span class="signature">(targetCurrency)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
     
 
     
@@ -152,7 +152,7 @@
 
 
 <div class="description">
-    GET /manager/managerReports/productUsageReportRenders the Product Usage Report page.Accepts optional query parameters for date filtering.
+    Fetches the latest exchange rate for the given target currencyand updates the HTML display element with the result.
 </div>
 
 
@@ -188,13 +188,13 @@
 
         <tr>
             
-                <td class="name"><code>req</code></td>
+                <td class="name"><code>targetCurrency</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">express.Request</span>
+<span class="param-type">string</span>
 
 
             
@@ -204,30 +204,7 @@
 
             
 
-            <td class="description last">The Express request object.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">express.Response</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The Express response object.</td>
+            <td class="description last">The currency code to convert the base currency into (e.g., 'EUR').</td>
         </tr>
 
     
@@ -268,7 +245,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_productUsageReport.js.html">routes/managerReportRoute/productUsageReport.js</a>, <a href="routes_managerReportRoute_productUsageReport.js.html#line16">line 16</a>
+        <a href="public_functions_api_currency-exchange.js.html">public/functions/api/currency-exchange.js</a>, <a href="public_functions_api_currency-exchange.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -297,7 +274,7 @@
 
         
 <div class="param-desc">
-    Renders EJS template with report data.
+    Updates the DOM element with the conversion rate.
 </div>
 
 
@@ -308,7 +285,7 @@
     </dt>
     <dd>
         
-<span class="param-type">void</span>
+<span class="param-type">Promise.&lt;void></span>
 
 
     </dd>
@@ -326,7 +303,7 @@
     
 
     
-    <h4 class="name" id=".generateProductUsageReport"><span class="type-signature">(async, static) </span>generateProductUsageReport<span class="signature">(from_date, to_date)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;{itemName: string, totalUsed: number}>>}</span></h4>
+    <h4 class="name" id=".initCurrencyExchange"><span class="type-signature">(static) </span>initCurrencyExchange<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -334,7 +311,7 @@
 
 
 <div class="description">
-    Generates a product usage report based on menu-item recipe requirements.
+    Initializes the exchange rate module when the DOM loads.
 </div>
 
 
@@ -343,78 +320,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>from_date</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Beginning of the date range (timestamp).</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>to_date</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">End of the date range (timestamp).</td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -450,7 +355,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="routes_managerReportRoute_productUsageReport.js.html">routes/managerReportRoute/productUsageReport.js</a>, <a href="routes_managerReportRoute_productUsageReport.js.html#line57">line 57</a>
+        <a href="public_functions_api_currency-exchange.js.html">public/functions/api/currency-exchange.js</a>, <a href="public_functions_api_currency-exchange.js.html#line48">line 48</a>
     </li></ul></dd>
     
 
@@ -475,35 +380,8 @@
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Returns an array of product usage objects.
-</div>
 
 
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;Array.&lt;{itemName: string, totalUsed: number}>></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>[  { itemName: "Chicken Breast", totalUsed: 124 },  { itemName: "Fried Rice", totalUsed: 89 }]</code></pre>
 
 
 
